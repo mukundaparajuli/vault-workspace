@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "../ui/textarea";
 import useVault from "@/hooks/use-vault";
 import createFolder from "@/lib/vaults/create-folder";
+import createFile from "@/lib/vaults/create-file";
 
 const CreateModuleForm = () => {
     const { vault, chooseVault } = useVault();
@@ -62,8 +63,14 @@ const CreateModuleForm = () => {
                 await createFolder(vault, values.name);
                 console.log("folder created successfully");
             }
-        } else if (values.moduleType === "file") {
-            // implement file creating feature here
+        } else if (values.moduleType === "File") {
+            if (!vault) {
+                await chooseVault();
+            } else {
+                console.log("creating the file");
+                await createFile(vault, values.name);
+                console.log("file created successfully")
+            }
         }
     }
     const moduleTypeArray = Object.values(moduleType);

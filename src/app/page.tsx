@@ -1,10 +1,13 @@
-import CreateModulePopover from "@/components/dashboard/create-module-dialog";
-import VaultExplorer from "@/components/vault/vault-explorer";
-export default function Home() {
+import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { SidebarProvider, SidebarTrigger, } from "@/components/ui/sidebar"
+export default function Home({ children }: { children: React.ReactNode }) {
   return (
-    <div >
-      <CreateModulePopover />
-      <VaultExplorer />
-    </div>
-  );
+    <SidebarProvider>
+      <AppSidebar />
+      <main>
+        <SidebarTrigger />
+        {children}
+      </main>
+    </SidebarProvider>
+  )
 }

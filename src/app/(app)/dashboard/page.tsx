@@ -1,4 +1,6 @@
+import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import CreateModuleDialog from "@/components/dashboard/create-module-dialog"
+import DisplayFolderStructure from "@/components/dashboard/display-folder-structure"
 
 const Page = () => {
     return (
