@@ -1,6 +1,5 @@
 "use client"
 
-import useVault from "@/hooks/use-vault";
 import { VaultItem } from "@/lib/vaults/get-folder-structure";
 import { createContext, useContext, useState } from "react";
 

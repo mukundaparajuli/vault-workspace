@@ -12,7 +12,7 @@ const CreateModuleDialog = () => {
     return (
         <Dialog>
             <DialogTrigger >
-                Create New Module
+                <div className="p-2 border-2 cursor-pointer text-gray-800 shadow-md rounded-md">Create New Module</div>
             </DialogTrigger>
             <DialogContent className="bg-white rounded-lg shadow-lg p-4 border border-gray-200">
                 <DialogHeader>

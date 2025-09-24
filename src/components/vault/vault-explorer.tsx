@@ -7,10 +7,8 @@ const VaultExplorer = () => {
     const { vault, chooseVault } = useVault();
     return (
         <div>
-            {!vault ?
+            {!vault &&
                 <Button onClick={chooseVault}>Vault Location</Button>
-                :
-                <div>Vault Selected</div>
             }
         </div>
     )

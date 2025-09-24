@@ -1,27 +1,20 @@
-"use client"
+"use client";
 
-import useSelectedFolderContext from '@/contexts/RootFolderContext';
-import useVault from '@/hooks/use-vault';
-import getFolderStructure, { VaultItem } from '@/lib/vaults/get-folder-structure';
-import React, { useEffect } from 'react'
-import { FileTree } from './file-tree';
+import useSelectedFolderContext from "@/contexts/RootFolderContext";
+import React from "react";
+import FileTree from "./file-tree";
 
-const DisplayFolderTree = () => {
+const SelectedFolderTree: React.FC = () => {
     const { selectedFolder } = useSelectedFolderContext();
-    const { vault } = useVault();
-    const [folders, setFolders] = React.useState<VaultItem[] | null>(null);
-    useEffect(() => {
-        if (selectedFolder) {
-            setFolders(selectedFolder);
-        } else if (vault) {
-            setFolders(vault as any);
-        }
-    }, [selectedFolder, vault]);
-    return (
-        <div>
-            <FileTree {...folders} />
-        </div>
-    )
-}
+    console.log("SelectedFolderTree rendering with selectedFolder:", selectedFolder);
+    if (!selectedFolder) return null;
 
-export default DisplayFolderTree
+    return (
+        <div className="w-1/3 h-screen overflow-y-auto border-l p-4">
+            <h2 className="mb-4 text-lg font-semibold">Folder Structure</h2>
+            <FileTree {...selectedFolder} />
+        </div>
+    );
+};
+
+export default SelectedFolderTree;
