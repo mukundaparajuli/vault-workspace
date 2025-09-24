@@ -9,18 +9,24 @@ const useVault = () => {
     useEffect(() => {
         (async () => {
             const saved = await get<FileSystemDirectoryHandle>("vaultDir");
+
             if (saved) {
                 const permission = await (saved as any).queryPermission({ mode: "readwrite" });
                 if (permission === "granted") {
                     setVault(saved);
                 }
             }
+
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persist();
+                console.log("Persistent storage granted:", isPersisted);
+            }
         })();
     }, []);
 
     const chooseVault = async () => {
         const dirHandle = await (window as any).showDirectoryPicker();
-        const permission = await dirHandle.requestPermission({ mode: "readwrite" });
+        const permission = await dirHandle.requestPermission({ mode: "readwrite", isPersistent: true });
         if (permission === "granted") {
             await set("vaultDir", dirHandle);
             setVault(dirHandle);

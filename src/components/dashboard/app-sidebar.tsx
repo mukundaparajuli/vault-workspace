@@ -33,7 +33,7 @@ export function AppSidebar() {
     }, [vault]);
 
     return (
-        <Sidebar>
+        <Sidebar className="h-full bg-blue-50">
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -58,9 +58,9 @@ const RenderFolders: React.FC<RenderFoldersProps> = ({ items }) => {
             {items.map((item) => (
                 <div key={item.name} style={{ paddingLeft: 10 }}>
                     <SidebarMenuItem>{item.name}</SidebarMenuItem>
-                    {item.children && item.children.length > 0 && (
+                    {/* {item.children && item.children.length > 0 && (
                         <RenderFolders items={item.children} />
-                    )}
+                    )} */}
                 </div>
             ))}
         </>

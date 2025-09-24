@@ -7,15 +7,12 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import CreateModuleForm from "./create-module-form";
-import { Button } from "../ui/button";
 
 const CreateModuleDialog = () => {
     return (
         <Dialog>
-            <DialogTrigger>
-                <Button variant="outline">
-                    Create New Module
-                </Button>
+            <DialogTrigger >
+                Create New Module
             </DialogTrigger>
             <DialogContent className="bg-white rounded-lg shadow-lg p-4 border border-gray-200">
                 <DialogHeader>
