@@ -5,10 +5,12 @@ import { Button } from "../ui/button"
 
 const VaultExplorer = () => {
     const { vault, chooseVault } = useVault();
+    console.log("vault", vault);
     return (
         <div>
-            {!vault &&
+            {!vault ?
                 <Button onClick={chooseVault}>Vault Location</Button>
+                : <div>Vault Location</div>
             }
         </div>
     )

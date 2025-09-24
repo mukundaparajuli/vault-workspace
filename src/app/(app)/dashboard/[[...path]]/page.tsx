@@ -5,11 +5,11 @@ import VaultExplorer from "@/components/vault/vault-explorer"
 
 const Page = () => {
     return (
-        <div className="relative w-full max-w-screen flex">
-            <div className="absolute  right-10">
+        <div className="relative w-full flex">
+            <div className="absolute top-4 right-8 z-10">
                 <CreateModuleDialog />
             </div>
-            <div className="w-full max-w-screen flex justify-center items-start mt-10">
+            <div className="w-full flex justify-center items-start pt-8">
                 <DisplayFolders />
             </div>
             <div className="flex h-screen w-full flex-1 overflow-hidden">

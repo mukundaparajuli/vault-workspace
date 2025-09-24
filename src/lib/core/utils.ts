@@ -1,4 +1,11 @@
-// utils/slug.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
+
+// Slug utilities
 export const toSlug = (name: string) => {
     return name
         .trim()

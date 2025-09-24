@@ -1,6 +1,3 @@
-import useVault from "@/hooks/use-vault"
-
-
 export type VaultItem = {
     name: string;
     kind: "file" | "folder";

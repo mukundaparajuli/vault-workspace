@@ -11,9 +11,9 @@ import { useRouter } from "next/navigation"
 import useVault from "@/hooks/use-vault"
 import getFolderStructure, { VaultItem } from "@/lib/vaults/get-folder-structure"
 import { FolderIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import useSelectedFolderContext from "@/contexts/RootFolderContext"
-import { toSlug } from "@/utils/slug"
+import { cn } from "@/lib/core/utils"
+import useSelectedFolderContext from "@/contexts/SelectedFolderContext"
+import { toSlug } from "@/lib/core/utils"
 
 export function AppSidebar() {
     const [folderStructure, setFolderStructure] = useState<VaultItem[] | null>(null)
@@ -36,9 +36,12 @@ export function AppSidebar() {
     }, [vault])
 
     return (
-        <Sidebar className="h-full bg-gray-50 pt-6">
+        <Sidebar className="h-full bg-white border-r border-gray-200 pt-6">
             <SidebarContent>
-                <SidebarMenu>
+                <div className="px-4 pb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Vault</h2>
+                </div>
+                <SidebarMenu className="px-2">
                     {folderStructure &&
                         folderStructure
                             .filter((item) => item.kind === "folder")
@@ -67,15 +70,18 @@ const FolderNode = ({ item }: { item: VaultItem }) => {
     return (
         <SidebarMenuItem
             className={cn(
-                "flex items-center cursor-pointer rounded-md px-2 py-1 transition-all duration-150",
+                "flex items-center cursor-pointer rounded-lg px-3 py-2 transition-all duration-200 mb-1",
                 isActive
-                    ? "bg-gray-200 text-gray-900 font-medium"
-                    : "hover:bg-gray-100 text-gray-800 font-medium"
+                    ? "bg-gray-900 text-white font-medium shadow-sm"
+                    : "hover:bg-gray-100 text-gray-700 font-medium hover:text-gray-900"
             )}
             onClick={handleClick}
         >
-            <FolderIcon className="text-gray-600" />
-            <span className="ml-2">{item.name}</span>
+            <FolderIcon className={cn(
+                "w-4 h-4",
+                isActive ? "text-gray-300" : "text-gray-500"
+            )} />
+            <span className="ml-3 text-sm">{item.name}</span>
         </SidebarMenuItem>
     )
 }
