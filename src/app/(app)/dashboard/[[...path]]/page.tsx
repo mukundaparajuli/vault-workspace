@@ -1,6 +1,7 @@
 import CreateModuleDialog from "@/components/dashboard/create-module-dialog"
 import SelectedFolderTree from "@/components/dashboard/display-folder-tree"
 import DisplayFolders from "@/components/dashboard/display-folders"
+import VaultDisplay from "@/components/dashboard/vault-display"
 import VaultExplorer from "@/components/vault/vault-explorer"
 
 const Page = () => {
@@ -10,7 +11,7 @@ const Page = () => {
                 <CreateModuleDialog />
             </div>
             <div className="w-full flex justify-center items-start pt-8">
-                <DisplayFolders />
+                <VaultDisplay />
             </div>
             <div className="flex h-screen w-full flex-1 overflow-hidden">
                 <VaultExplorer />

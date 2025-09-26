@@ -1,170 +1,54 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Image, File, FileImage } from "lucide-react";
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import useVault from "@/hooks/use-vault"
+import getFolderStructure from "@/lib/vaults/get-folder-structure"
+import { fromSlug } from "@/lib/core/utils"
 
 interface FileViewerProps {
-    fileHandle: FileSystemFileHandle;
-    fileName: string;
-    onClose: () => void;
+    fileHandle: FileSystemFileHandle
+    fileName: string
 }
 
-const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName, onClose }) => {
-    const [fileContent, setFileContent] = useState<string>("");
-    const [fileUrl, setFileUrl] = useState<string>("");
-    const [fileType, setFileType] = useState<string>("");
-    const [loading, setLoading] = useState(true);
+const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName }) => {
+    const [content, setContent] = useState<string>("")
+    const [fileUrl, setFileUrl] = useState<string>("")
+    const [fileType, setFileType] = useState<string>("")
 
     useEffect(() => {
-        loadFile();
-        return () => {
-            if (fileUrl) {
-                URL.revokeObjectURL(fileUrl);
+        const load = async () => {
+            const file = await fileHandle.getFile()
+            setFileType(file.type)
+
+            if (file.type.startsWith("image/")) {
+                setFileUrl(URL.createObjectURL(file))
+            } else if (
+                file.type === "text/plain" ||
+                file.type === "application/json" ||
+                file.name.endsWith(".md")
+            ) {
+                setContent(await file.text())
+            } else if (file.type === "application/pdf") {
+                setFileUrl(URL.createObjectURL(file))
             }
-        };
-    }, [fileHandle]);
-
-    const loadFile = async () => {
-        try {
-            const file = await fileHandle.getFile();
-            setFileType(file.type);
-
-            // Handle different file types
-            if (file.type.startsWith('image/')) {
-                const url = URL.createObjectURL(file);
-                setFileUrl(url);
-            } else if (file.type === 'text/plain' || file.type === 'application/json' || file.name.endsWith('.md')) {
-                const text = await file.text();
-                setFileContent(text);
-            } else if (file.type === 'application/pdf') {
-                const url = URL.createObjectURL(file);
-                setFileUrl(url);
-            } else {
-                // For other file types, show file info
-                setFileContent(`File: ${fileName}\nSize: ${(file.size / 1024).toFixed(2)} KB\nType: ${file.type || 'Unknown'}`);
-            }
-        } catch (error) {
-            console.error("Failed to load file:", error);
-            setFileContent("Failed to load file content.");
-        } finally {
-            setLoading(false);
         }
-    };
+        load()
+    }, [fileHandle])
 
-    const downloadFile = async () => {
-        try {
-            const file = await fileHandle.getFile();
-            const url = URL.createObjectURL(file);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error("Failed to download file:", error);
-        }
-    };
+    if (fileType.startsWith("image/") && fileUrl) {
+        return <img src={fileUrl} alt={fileName} className="max-w-full h-auto" />
+    }
 
-    const getFileIcon = () => {
-        if (fileType.startsWith('image/')) {
-            return <Image className="w-6 h-6 text-blue-600" />;
-        } else if (fileName.endsWith('.md')) {
-            return <FileText className="w-6 h-6 text-green-600" />;
-        } else if (fileType === 'application/pdf') {
-            return <FileImage className="w-6 h-6 text-red-600" />;
-        } else {
-            return <File className="w-6 h-6 text-gray-600" />;
-        }
-    };
-
-    const renderContent = () => {
-        if (loading) {
-            return (
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-500">Loading...</div>
-                </div>
-            );
-        }
-
-        if (fileType.startsWith('image/') && fileUrl) {
-            return (
-                <div className="flex items-center justify-center h-full p-4">
-                    <img
-                        src={fileUrl}
-                        alt={fileName}
-                        className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                    />
-                </div>
-            );
-        }
-
-        if (fileType === 'application/pdf' && fileUrl) {
-            return (
-                <div className="h-full">
-                    <iframe
-                        src={fileUrl}
-                        className="w-full h-full border-0"
-                        title={fileName}
-                    />
-                </div>
-            );
-        }
-
+    if (fileType === "application/pdf" && fileUrl) {
         return (
-            <div className="h-full overflow-y-auto p-4">
-                <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 leading-relaxed">
-                    {fileContent}
-                </pre>
-            </div>
-        );
-    };
+            <iframe src={fileUrl} className="w-full h-screen border-0" title={fileName} />
+        )
+    }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-5/6 flex flex-col">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-3">
-                        {getFileIcon()}
-                        <h2 className="text-lg font-semibold text-gray-900">{fileName}</h2>
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                            {fileType || 'Unknown type'}
-                        </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={downloadFile}
-                        >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                        </Button>
-                        <Button variant="outline" onClick={onClose} size="sm">
-                            <X className="w-4 h-4 mr-2" />
-                            Close
-                        </Button>
-                    </div>
-                </div>
+        <pre className="p-4 text-sm font-mono whitespace-pre-wrap">{content}</pre>
+    )
+}
 
-                {/* Content */}
-                <div className="flex-1 overflow-hidden">
-                    {renderContent()}
-                </div>
-
-                {/* Footer */}
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
-                    <p className="text-xs text-gray-500">
-                        {fileName} • {fileType || 'Unknown type'} •
-                        Click download to save the file
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default FileViewer;
+export default FileViewer
