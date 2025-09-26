@@ -60,8 +60,6 @@ const SelectedFolderTree: React.FC = () => {
                 // Get the folder structure for the current directory
                 const folderStructure = await getFolderStructure(vault, currentDir);
 
-                // Create a VaultItem for the current directory without showing itself
-                // Just pass the children directly to avoid showing the current folder in its own tree
                 const currentFolder: VaultItem = {
                     name: folderName,
                     kind: "folder",
@@ -119,7 +117,7 @@ const SelectedFolderTree: React.FC = () => {
 
     console.log("Rendering FileTree with folder:", folder);
     return (
-        <div className="w-1/3 h-screen overflow-y-auto border-l p-4">
+        <div className="w-1/3 h-screen overflow-y-auto overflow-x-hidden border-l p-4">
             <h2 className="mb-4 text-lg font-semibold">Folder Structure</h2>
             <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-3">{folder.name}</h3>

@@ -3,6 +3,7 @@
 import {
     Sidebar,
     SidebarContent,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
@@ -18,7 +19,7 @@ import { toSlug } from "@/lib/core/utils"
 export function AppSidebar() {
     const [folderStructure, setFolderStructure] = useState<VaultItem[] | null>(null)
     const { vault } = useVault()
-
+    const router = useRouter()
     useEffect(() => {
         if (!vault) return
 
@@ -36,11 +37,11 @@ export function AppSidebar() {
     }, [vault])
 
     return (
-        <Sidebar className="h-full bg-white border-r border-gray-200 pt-6">
+        <Sidebar className="h-full bg-white border-r border-gray-200">
             <SidebarContent>
-                <div className="px-4 pb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Vault</h2>
-                </div>
+                <SidebarHeader>
+                    <h2 className="text-xl text-center font-bold text-gray-900 py-2 cursor-pointer" onClick={() => router.push("/dashboard")}>Vault</h2>
+                </SidebarHeader>
                 <SidebarMenu className="px-2">
                     {folderStructure &&
                         folderStructure

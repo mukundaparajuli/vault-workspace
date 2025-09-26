@@ -3,7 +3,7 @@
 import useSelectedFolderContext from "@/contexts/SelectedFolderContext";
 import { VaultItem } from "@/lib/vaults/get-folder-structure"
 import { FolderIcon, FileIcon } from "lucide-react"
-import { redirect, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toSlug } from "@/lib/core/utils";
 
 const FileTree = (rootFolder: VaultItem) => {

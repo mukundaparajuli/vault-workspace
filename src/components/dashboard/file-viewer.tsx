@@ -1,10 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import useVault from "@/hooks/use-vault"
-import getFolderStructure from "@/lib/vaults/get-folder-structure"
-import { fromSlug } from "@/lib/core/utils"
+import ReactPlayer from "react-player"
+import MarkdownEditor from "./markdown-editor"
 
 interface FileViewerProps {
     fileHandle: FileSystemFileHandle
@@ -17,37 +15,66 @@ const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName }) => {
     const [fileType, setFileType] = useState<string>("")
 
     useEffect(() => {
-        const load = async () => {
+        let url: string | null = null
+
+        const loadFile = async () => {
             const file = await fileHandle.getFile()
             setFileType(file.type)
 
-            if (file.type.startsWith("image/")) {
-                setFileUrl(URL.createObjectURL(file))
+            if (file.type.startsWith("image/") || file.type.startsWith("video/") || file.type === "application/pdf") {
+                url = URL.createObjectURL(file)
+                setFileUrl(url)
             } else if (
                 file.type === "text/plain" ||
                 file.type === "application/json" ||
                 file.name.endsWith(".md")
             ) {
                 setContent(await file.text())
-            } else if (file.type === "application/pdf") {
-                setFileUrl(URL.createObjectURL(file))
             }
         }
-        load()
+
+        loadFile()
+
+        return () => {
+            if (url) URL.revokeObjectURL(url)
+        }
     }, [fileHandle])
 
+    // Image
     if (fileType.startsWith("image/") && fileUrl) {
         return <img src={fileUrl} alt={fileName} className="max-w-full h-auto" />
     }
 
-    if (fileType === "application/pdf" && fileUrl) {
+    //Markdown
+    if (fileName.endsWith(".md")) {
         return (
-            <iframe src={fileUrl} className="w-full h-screen border-0" title={fileName} />
+            <MarkdownEditor fileHandle={fileHandle} fileName={fileName} onClose={() => { }} />
         )
     }
 
+    // PDF
+    if (fileType === "application/pdf" && fileUrl) {
+        return (
+            <iframe
+                src={fileUrl}
+                className="w-full h-[calc(100vh-2rem)] border-0"
+                title={fileName}
+            />
+        )
+    }
+
+    // Video
+    if (fileType.startsWith("video/") && fileUrl) {
+        return <ReactPlayer src={fileUrl} controls width="100%" height="100%" />
+    }
+
+
+
+    // Plain text / JSON
     return (
-        <pre className="p-4 text-sm font-mono whitespace-pre-wrap">{content}</pre>
+        <pre className="p-4 text-sm font-mono whitespace-pre-wrap overflow-auto max-h-[calc(100vh-4rem)]">
+            {content}
+        </pre>
     )
 }
 

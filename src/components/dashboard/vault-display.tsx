@@ -7,6 +7,8 @@ import getFolderStructure from "@/lib/vaults/get-folder-structure"
 import { fromSlug } from "@/lib/core/utils"
 import DisplayFolders from "./display-folders"
 import FileViewer from "./file-viewer"
+import CreateModuleDialog from "./create-module-dialog"
+import VaultExplorer from "../vault/vault-explorer"
 
 const VaultDisplay = () => {
     const { vault } = useVault()
@@ -58,11 +60,21 @@ const VaultDisplay = () => {
 
         resolvePath()
     }, [vault, path])
+    if (!vault) return <VaultExplorer />
+    if (!kind) return <div className="text-gray-500 text-center">Loading...</div>
+    return (
+        <div className="relative w-full">
+            {kind === "folder" &&
+                <div className="absolute top-4 right-8 z-10">
+                    <CreateModuleDialog />
+                </div>
+            }
+            {
+                kind === "folder" ? <DisplayFolders /> : (fileHandle && <FileViewer fileHandle={fileHandle} fileName={fileName} />)
+            }
+        </div>
+    )
 
-    if (kind === "folder") return <DisplayFolders />
-    if (kind === "file" && fileHandle) return <FileViewer fileHandle={fileHandle} fileName={fileName} />
-
-    return <div className="text-gray-500 text-center">Loading...</div>
 }
 
 export default VaultDisplay

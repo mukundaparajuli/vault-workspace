@@ -19,29 +19,35 @@ const FolderCard = (item: VaultItem) => {
 
     return (
         <div
-            className={`w-48 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-200 cursor-pointer hover:border-gray-300 hover:scale-105`}
+            className="flex items-center p-4 bg-white hover:bg-gray-25 border-b border-gray-100 hover:border-gray-150 cursor-pointer group transition-colors duration-150"
             onClick={handleClick}
         >
-            <div className="flex items-center space-x-3 mb-3">
+            <div className="flex items-center mr-4">
                 {item.kind === "folder" ? (
-                    <Folder className="w-6 h-6 text-gray-700" />
+                    <Folder className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                 ) : item.name.endsWith(".md") ? (
-                    <File className="w-5 h-5 text-green-600" />
+                    <File className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                 ) : (
-                    <File className="w-5 h-5 text-gray-600" />
+                    <File className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                 )}
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            </div>
+
+            <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-gray-800 text-sm group-hover:text-gray-900 transition-colors truncate">
+                    {item.name}
+                </h3>
+                {item.kind === "file" && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                        {item.name.endsWith(".md") ? "Markdown file" : "Document"}
+                    </p>
+                )}
+            </div>
+
+            <div className="ml-4 flex-shrink-0">
+                <span className="text-xs text-gray-400 uppercase tracking-wider font-medium">
                     {item.kind}
                 </span>
             </div>
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight">
-                {item.name}
-            </h3>
-            {item.kind === "file" && (
-                <p className="text-xs text-gray-500 mt-1">
-                    {item.name.endsWith(".md") ? "Click to edit" : "Click to view"}
-                </p>
-            )}
         </div>
     )
 }
