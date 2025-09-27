@@ -19,7 +19,6 @@ const useVault = () => {
 
             if (navigator.storage && navigator.storage.persist) {
                 const isPersisted = await navigator.storage.persist();
-                console.log("Persistent storage granted:", isPersisted);
             }
         })();
     }, []);

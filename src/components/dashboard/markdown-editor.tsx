@@ -44,7 +44,6 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             await writable.write(content);
             await writable.close();
             setHasChanges(false);
-            console.log("File saved successfully");
         } catch (error) {
             console.error("Failed to save file:", error);
             alert("Failed to save file. Please try again.");

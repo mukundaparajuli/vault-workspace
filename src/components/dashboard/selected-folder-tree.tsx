@@ -1,6 +1,5 @@
 "use client";
 
-import useSelectedFolderContext from "@/contexts/SelectedFolderContext";
 import React, { useEffect, useState } from "react";
 import FileTree from "./file-tree";
 import { useParams } from "next/navigation";
@@ -16,12 +15,9 @@ const SelectedFolderTree: React.FC = () => {
     const params = useParams();
     const path = params.path as string[] | undefined;
 
-    // Don't show file tree at root level (no path params)
     if (!path || path.length === 0) {
         return null;
     }
-
-    console.log("Current path from params:", path);
 
     useEffect(() => {
         const fetchFolder = async () => {
@@ -32,39 +28,39 @@ const SelectedFolderTree: React.FC = () => {
                 let currentDir = vault;
                 let folderName = "Vault Root";
 
-                // Navigate to the specific directory based on path
-                // For each path segment, we need to find the actual folder name from the slug
+                // Check if last segment is a file
                 for (let i = 0; i < path.length; i++) {
                     const slug = path[i];
 
-                    // Get the current directory contents to find the actual folder name
                     const currentContents = await getFolderStructure(vault, currentDir);
                     const folderNames = currentContents
-                        .filter(item => item.kind === "folder")
-                        .map(item => item.name);
+                        .filter((item) => item.kind === "folder")
+                        .map((item) => item.name);
+                    const fileNames = currentContents
+                        .filter((item) => item.kind === "file")
+                        .map((item) => item.name);
 
-                    // Convert slug back to actual folder name
                     const actualFolderName = fromSlug(slug, folderNames);
+                    const actualFileName = fromSlug(slug, fileNames);
 
-                    if (!actualFolderName) {
-                        console.error(`Could not find folder for slug: ${slug}`);
-                        throw new Error(`Folder not found for slug: ${slug}`);
+                    if (actualFolderName) {
+                        currentDir = await currentDir.getDirectoryHandle(actualFolderName);
+                        folderName = actualFolderName;
+                    } else if (actualFileName) {
+                        // stop at parent folder if it's a file
+                        break;
+                    } else {
+                        throw new Error(`No match found for slug: ${slug}`);
                     }
-
-                    currentDir = await currentDir.getDirectoryHandle(actualFolderName);
-                    folderName = actualFolderName;
                 }
 
-                console.log("Navigated to directory:", currentDir);
-
-                // Get the folder structure for the current directory
                 const folderStructure = await getFolderStructure(vault, currentDir);
 
                 const currentFolder: VaultItem = {
                     name: folderName,
                     kind: "folder",
                     handle: currentDir,
-                    children: folderStructure
+                    children: folderStructure,
                 };
 
                 setFolder(currentFolder);
@@ -85,7 +81,9 @@ const SelectedFolderTree: React.FC = () => {
                 <h2 className="mb-6 text-lg font-semibold text-gray-900">Folder Structure</h2>
                 <div className="text-gray-600 text-center py-8">
                     <p className="text-sm">No vault selected</p>
-                    <p className="text-xs text-gray-500 mt-1">Please select a vault from the sidebar</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Please select a vault from the sidebar
+                    </p>
                 </div>
             </div>
         );
@@ -115,7 +113,6 @@ const SelectedFolderTree: React.FC = () => {
         );
     }
 
-    console.log("Rendering FileTree with folder:", folder);
     return (
         <div className="w-1/3 h-screen overflow-y-auto overflow-x-hidden border-l p-4">
             <h2 className="mb-4 text-lg font-semibold">Folder Structure</h2>

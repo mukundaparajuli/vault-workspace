@@ -19,7 +19,6 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "../ui/textarea";
 import useVault from "@/hooks/use-vault";
 import createFolder from "@/lib/vaults/create-folder";
 import createFile from "@/lib/vaults/create-file";
@@ -30,7 +29,6 @@ import getFolderStructure from "@/lib/vaults/get-folder-structure";
 
 const moduleSchema = z.object({
     name: z.string().optional(),
-    description: z.string().optional(),
     moduleType: z.enum(["File", "Folder", "Upload"]),
     uploadedFile: z.instanceof(File).optional(),
 }).superRefine((data, ctx) => {
@@ -63,14 +61,12 @@ const CreateModuleForm = () => {
         resolver: zodResolver(moduleSchema),
         defaultValues: {
             name: "",
-            description: "",
             moduleType: "File",
             uploadedFile: undefined,
         },
     });
 
     const handleSubmit = async (values: ModuleSchemaType) => {
-        console.log(values);
         if (!vault) {
             await chooseVault();
             return;
@@ -139,19 +135,6 @@ const CreateModuleForm = () => {
                         />
                     )}
 
-                    <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl>
-                                    <Textarea placeholder="Description of the module" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
                     <FormField
                         control={form.control}

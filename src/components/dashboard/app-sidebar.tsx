@@ -26,7 +26,6 @@ export function AppSidebar() {
         const fetchStructure = async () => {
             try {
                 const structure = await getFolderStructure(vault)
-                console.log("Fetched folder structure:", structure)
                 setFolderStructure(structure)
             } catch (error) {
                 console.error("Failed to get folder structure:", error)
@@ -58,10 +57,7 @@ const FolderNode = ({ item }: { item: VaultItem }) => {
     const router = useRouter()
 
     const handleClick = () => {
-        console.log("Folder clicked:", item)
         setSelectedFolder(item)
-
-        // Navigate to vault route with slug
         const slug = toSlug(item.name)
         router.push(`/dashboard/${slug}`)
     }
