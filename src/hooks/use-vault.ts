@@ -29,6 +29,7 @@ const useVault = () => {
         if (permission === "granted") {
             await set("vaultDir", dirHandle);
             setVault(dirHandle);
+            window.location.reload();
         }
     }
 

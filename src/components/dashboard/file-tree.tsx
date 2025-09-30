@@ -129,9 +129,7 @@ const FileTree: React.FC<FileTreeProps> = ({ node }) => {
                     {!loading && children && children.map((child) => (
                         <FileTree key={child.path.join("/")} node={child} />
                     ))}
-                    {!loading && (!children || children.length === 0) && (
-                        <div className="text-xs text-gray-400 py-1">Empty</div>
-                    )}
+
                 </div>
             )}
         </div>

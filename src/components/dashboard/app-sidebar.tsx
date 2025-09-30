@@ -3,9 +3,11 @@
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
+    SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -15,6 +17,7 @@ import { FolderIcon } from "lucide-react"
 import { cn } from "@/lib/core/utils"
 import useSelectedFolderContext from "@/contexts/SelectedFolderContext"
 import { toSlug } from "@/lib/core/utils"
+import VaultExplorer from "../vault/vault-explorer"
 
 export function AppSidebar() {
     const [folderStructure, setFolderStructure] = useState<VaultItem[] | null>(null)
@@ -48,6 +51,11 @@ export function AppSidebar() {
                             .map((item) => <FolderNode key={item.name} item={item} />)}
                 </SidebarMenu>
             </SidebarContent>
+
+            <SidebarFooter>
+                <SidebarSeparator />
+                <VaultExplorer />
+            </SidebarFooter>
         </Sidebar>
     )
 }

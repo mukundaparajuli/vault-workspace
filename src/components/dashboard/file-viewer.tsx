@@ -58,7 +58,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName, isFullScr
         return (
             <iframe
                 src={fileUrl}
-                className={isFullScreen ? "w-full h-[100vh] border-0" : "w-full h-[calc(100vh-2rem)] border-0"}
+                className={isFullScreen ? "w-full h-[100vh] border-0" : "w-full h-[calc(100vh-3rem)] border-0"}
                 title={fileName}
             />
         )

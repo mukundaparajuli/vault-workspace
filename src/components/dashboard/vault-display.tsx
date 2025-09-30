@@ -88,7 +88,11 @@ const VaultDisplay = () => {
 
 
 
-    if (!vault) return <VaultExplorer />
+    if (!vault) return (
+        <div className="w-full h-screen flex flex-col items-center justify-center">
+            <VaultExplorer />
+        </div>
+    )
     if (!kind) return <div className="text-gray-500 text-center">Loading...</div>
     return (
         <div className="relative w-full">
@@ -101,7 +105,6 @@ const VaultDisplay = () => {
                 kind === "folder" ? <DisplayFolders /> : (fileHandle &&
 
                     <div>
-                        {/* Fullscreen toggle button (normal mode) */}
                         {!isFullscreen && (
                             <button
                                 onClick={toggleFullscreen}
@@ -110,8 +113,6 @@ const VaultDisplay = () => {
                                 <Maximize2 size={18} />
                             </button>
                         )}
-
-                        {/* Exit fullscreen button (only visible on hover) */}
 
                         <div
                             style={
