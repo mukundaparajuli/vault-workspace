@@ -67,6 +67,7 @@ const CreateModuleForm = () => {
     });
 
     const handleSubmit = async (values: ModuleSchemaType) => {
+        console.log(values);
         if (!vault) {
             await chooseVault();
             return;

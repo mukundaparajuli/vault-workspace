@@ -53,6 +53,7 @@ const DisplayFolders = () => {
                     }
 
                     const structure = await getFolderStructure(vault, currentDir)
+                    console.log("Fetched folder structure for path:", path, structure)
                     if (structure.length === 0) setIsEmpty(true)
                     setFolders(structure)
                 } else if (vault) {

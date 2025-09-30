@@ -58,6 +58,7 @@ const FolderNode = ({ item }: { item: VaultItem }) => {
 
     const handleClick = () => {
         setSelectedFolder(item)
+        console.log(item);
         const slug = toSlug(item.name)
         router.push(`/dashboard/${slug}`)
     }
