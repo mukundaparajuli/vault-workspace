@@ -7,9 +7,10 @@ import MarkdownEditor from "./markdown-editor"
 interface FileViewerProps {
     fileHandle: FileSystemFileHandle
     fileName: string
+    isFullScreen?: boolean
 }
 
-const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName }) => {
+const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName, isFullScreen }) => {
     const [content, setContent] = useState<string>("")
     const [fileUrl, setFileUrl] = useState<string>("")
     const [fileType, setFileType] = useState<string>("")
@@ -57,7 +58,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName }) => {
         return (
             <iframe
                 src={fileUrl}
-                className="w-full h-[calc(100vh-2rem)] border-0"
+                className={isFullScreen ? "w-full h-[100vh] border-0" : "w-full h-[calc(100vh-2rem)] border-0"}
                 title={fileName}
             />
         )

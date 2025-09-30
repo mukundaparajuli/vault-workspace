@@ -93,7 +93,7 @@ const DisplayFolders = () => {
 
 
     return (
-        <div className="w-full max-w-screen px-8 top-10">
+        <div className="w-full max-w-screen px-8 mt-9">
             <div className="flex flex-col justify-start rounded-xl">
                 {folders.map((folder) => (
                     <FolderCard key={folder.name} {...folder} />
