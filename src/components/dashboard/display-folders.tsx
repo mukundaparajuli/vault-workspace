@@ -1,16 +1,11 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import useVault from '@/hooks/use-vault'
 import getFolderStructure, { VaultItem } from '@/lib/vaults/get-folder-structure'
 import FolderCard from './folder-card'
 import { FolderOpenIcon } from 'lucide-react'
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-} from "@/components/ui/breadcrumb"
 import { fromSlug } from '@/lib/core/utils'
 
 const DisplayFolders = () => {
@@ -19,7 +14,6 @@ const DisplayFolders = () => {
     const params = useParams()
     const path = params.path as string[] | undefined
     const { vault } = useVault()
-    const router = useRouter()
 
     useEffect(() => {
         const fetchStructure = async () => {

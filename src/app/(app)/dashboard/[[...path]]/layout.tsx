@@ -1,4 +1,3 @@
-import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import EnhancedBreadCrumb from '@/components/dashboard/enhanced-breadcrumb'
 import LeftSidebar from '@/components/dashboard/left-sidebar'
 import RightSidebar from '@/components/dashboard/right-sidebar'

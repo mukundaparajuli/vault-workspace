@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import ReactPlayer from "react-player"
 import MarkdownEditor from "./markdown-editor"
+import Image from "next/image"
 
 interface FileViewerProps {
     fileHandle: FileSystemFileHandle
@@ -43,7 +44,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ fileHandle, fileName, isFullScr
 
     // Image
     if (fileType.startsWith("image/") && fileUrl) {
-        return <img src={fileUrl} alt={fileName} className="max-w-full h-auto" />
+        return <Image src={fileUrl} alt={fileName} className="max-w-full h-auto" />
     }
 
     //Markdown

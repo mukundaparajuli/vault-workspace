@@ -9,7 +9,6 @@ const useVault = () => {
     useEffect(() => {
         (async () => {
             const saved = await get<FileSystemDirectoryHandle>("vaultDir");
-
             if (saved) {
                 const permission = await (saved as any).queryPermission({ mode: "readwrite" });
                 if (permission === "granted") {
@@ -17,9 +16,6 @@ const useVault = () => {
                 }
             }
 
-            if (navigator.storage && navigator.storage.persist) {
-                const isPersisted = await navigator.storage.persist();
-            }
         })();
     }, []);
 

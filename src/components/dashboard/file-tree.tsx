@@ -2,11 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { FolderIcon, FileIcon, ChevronRight, ChevronDown } from "lucide-react";
+import { FolderIcon, FileIcon } from "lucide-react";
 import { VaultItem } from "@/lib/vaults/get-folder-structure";
-import getFolderStructure from "@/lib/vaults/get-folder-structure";
 import useSelectedFolderContext from "@/contexts/SelectedFolderContext";
-import useVault from "@/hooks/use-vault";
 import { toSlug } from "@/lib/core/utils";
 
 interface FileTreeProps {
@@ -15,19 +13,17 @@ interface FileTreeProps {
 
 const FileTree: React.FC<FileTreeProps> = ({ node }) => {
     const { setSelectedFolder } = useSelectedFolderContext();
-    const { vault } = useVault();
     const router = useRouter();
     const params = useParams();
 
     const isFolder = node.kind === "folder";
     const [expanded, setExpanded] = useState<boolean>(false);
-    const [children, setChildren] = useState<VaultItem[] | null>(node.children ?? null);
-    const [loading, setLoading] = useState(false);
-    const pathKey = useMemo(() => (node.path ? node.path.join("/") : ""), [node.path]);
+    const [children,] = useState<VaultItem[] | null>(node.children ?? null);
+    const [loading,] = useState(false);
 
-    // Current URL path slugs
     const currentSlugs = (params?.path as string[] | undefined) || [];
     const nodeSlugPath = useMemo(() => (node.path ?? []).map(toSlug), [node.path]);
+
     const isOnActivePath = useMemo(() => {
         if (nodeSlugPath.length === 0) return false;
         if (nodeSlugPath.length > currentSlugs.length) return false;
@@ -36,6 +32,7 @@ const FileTree: React.FC<FileTreeProps> = ({ node }) => {
         }
         return true;
     }, [nodeSlugPath, currentSlugs.join("/")]);
+
     const isExactActive = useMemo(() => {
         if (nodeSlugPath.length === 0) return false;
         if (nodeSlugPath.length !== currentSlugs.length) return false;
@@ -43,7 +40,7 @@ const FileTree: React.FC<FileTreeProps> = ({ node }) => {
             if (nodeSlugPath[i] !== currentSlugs[i]) return false;
         }
         return true;
-    }, [nodeSlugPath, currentSlugs.join("/")]);
+    }, [nodeSlugPath, currentSlugs]);
 
     useEffect(() => {
         if (isFolder && isOnActivePath && !expanded) {
@@ -54,58 +51,16 @@ const FileTree: React.FC<FileTreeProps> = ({ node }) => {
     const navigateToNode = useCallback(() => {
         if (!node.path) return;
         const nodeSlugs = (node.path ?? []).map(toSlug);
-        // If nodeSlugs doesn't start with currentSlugs (root), prefix currentSlugs to keep absolute path
         const needsPrefix = currentSlugs.length > 0 && nodeSlugs.length > 0 && nodeSlugs[0] !== currentSlugs[0];
         const finalSlugs = needsPrefix ? [...currentSlugs, ...nodeSlugs] : nodeSlugs;
         const slugPath = finalSlugs.map(encodeURIComponent);
         if (isFolder) setSelectedFolder(node);
         router.push(`/dashboard/${slugPath.join("/")}`);
-    }, [node, isFolder, setSelectedFolder, router, currentSlugs.join("/")]);
-
-    const toggleExpand = useCallback(async () => {
-        if (!isFolder) {
-            navigateToNode();
-            return;
-        }
-        setExpanded((prev) => !prev);
-        // Lazy load children on first expand
-        if (
-            !expanded &&
-            !children &&
-            vault &&
-            node.handle &&
-            typeof node.handle === "object" &&
-            "getDirectoryHandle" in node.handle
-        ) {
-            setLoading(true);
-            try {
-                const structure = await getFolderStructure(vault, node.handle as FileSystemDirectoryHandle);
-                const built = structure.map((item) => ({
-                    ...item,
-                    path: [...(node.path ?? []), item.name],
-                }));
-                setChildren(built);
-            } finally {
-                setLoading(false);
-            }
-        }
-    }, [expanded, children, vault, node, navigateToNode, isFolder]);
+    }, [node, isFolder, setSelectedFolder, router, currentSlugs]);
 
     return (
         <div>
             <div className="flex w-full items-center py-1 px-2 rounded-md group">
-                {/* {isFolder ? (
-                    <button
-                        className="mr-1 p-1 rounded hover:bg-gray-100 text-gray-600"
-                        aria-label={expanded ? "Collapse" : "Expand"}
-                        onClick={toggleExpand}
-                    >
-                        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    </button>
-                ) : (
-                    <span className="w-5 inline-block" />
-                )} */}
-
                 <div
                     className={`flex items-start space-x-2 flex-1 py-1 px-2 rounded-md ${isFolder ? "cursor-pointer hover:bg-gray-100" : "cursor-pointer hover:bg-gray-50"
                         } ${isExactActive ? "bg-gray-200" : ""}`}

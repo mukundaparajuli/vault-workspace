@@ -9,7 +9,7 @@ import { sanitizePath } from '@/lib/core/utils';
 const RightSidebar = () => {
     const params = useParams();
     const rawPath = (params.path as string[] | undefined) || [];
-    const path = useMemo(() => sanitizePath(rawPath), [rawPath.join('/')]);
+    const path = useMemo(() => sanitizePath(rawPath), [rawPath]);
 
     return (
         <div className='relative'>

@@ -7,7 +7,6 @@ import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { decodePathSegment, sanitizePath, validatePath, toSlug } from "@/lib/core/utils"
@@ -28,9 +27,8 @@ const EnhancedBreadCrumb = () => {
     })
     const [isNavigating, setIsNavigating] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [actualNames, setActualNames] = useState<string[]>([])
+    const [actualNames] = useState<string[]>([])
 
-    // Update history when path changes
     useEffect(() => {
         const currentPath = sanitizePath(path || [])
 
@@ -41,7 +39,6 @@ const EnhancedBreadCrumb = () => {
 
         setError(null)
 
-        // Add to history if it's a new path
         setHistory(prev => {
             const lastPath = prev.paths[prev.currentIndex] || []
             const pathsEqual = JSON.stringify(lastPath) === JSON.stringify(currentPath)
@@ -147,7 +144,6 @@ const EnhancedBreadCrumb = () => {
                 </Button>
             </div>
 
-            {/* Error indicator */}
             {error && (
                 <div className="flex items-center gap-1 text-red-500" title={error}>
                     <AlertCircle className="h-4 w-4" />
@@ -155,7 +151,6 @@ const EnhancedBreadCrumb = () => {
                 </div>
             )}
 
-            {/* Breadcrumb */}
             <Breadcrumb>
                 <div className="flex items-center whitespace-nowrap">
                     {/* Home */}
@@ -169,7 +164,6 @@ const EnhancedBreadCrumb = () => {
                         </BreadcrumbLink>
                     </BreadcrumbItem>
 
-                    {/* Path segments */}
                     {breadcrumbs.length > 0 && (
                         <>
                             {'>'}
@@ -194,7 +188,6 @@ const EnhancedBreadCrumb = () => {
                 </div>
             </Breadcrumb>
 
-            {/* Loading indicator */}
             {isNavigating && (
                 <div className="flex items-center gap-1 text-blue-500">
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500"></div>

@@ -1,7 +1,5 @@
 "use client"
-
 import { useParams, useRouter } from "next/navigation"
-import { useEffect } from "react";
 import {
     Breadcrumb,
     BreadcrumbItem,

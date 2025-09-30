@@ -24,7 +24,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
 
     useEffect(() => {
         loadFile();
-    }, [fileHandle]);
+    }, [fileHandle, fileName]);
 
     const loadFile = async () => {
         try {

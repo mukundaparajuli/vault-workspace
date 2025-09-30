@@ -7,16 +7,16 @@ import { VaultItem } from "@/lib/vaults/get-folder-structure";
 import useVault from "@/hooks/use-vault";
 import getFolderStructure from "@/lib/vaults/get-folder-structure";
 import { fromSlug, sanitizePath, validatePath } from "@/lib/core/utils";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu } from "@/components/ui/sidebar";
 
 const SelectedFolderTree: React.FC = () => {
     const [folder, setFolder] = useState<VaultItem | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { vault } = useVault();
     const params = useParams();
     const rawPath = (params.path as string[] | undefined) || [];
-    const path = useMemo(() => sanitizePath(rawPath), [rawPath.join('/')]);
+    const path = useMemo(() => sanitizePath(rawPath), [rawPath]);
     const pathKey = path.join('/');
 
 
