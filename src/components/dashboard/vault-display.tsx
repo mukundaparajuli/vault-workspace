@@ -89,8 +89,13 @@ const VaultDisplay = () => {
 
 
     if (!vault) return (
-        <div className="w-full h-screen flex flex-col items-center justify-center">
+        <div className="mt-10 flex flex-col items-center justify-center gap-2">
             <VaultExplorer />
+            <p className="text-sm text-gray-500 text-center">
+                If the button did not open a dialog, please make sure your browser supports <br />
+                the File System Access API (e.g., Chrome, Edge).
+            </p>
+
         </div>
     )
     if (!kind) return <div className="text-gray-500 text-center">Loading...</div>

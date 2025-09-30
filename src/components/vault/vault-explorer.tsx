@@ -9,7 +9,12 @@ const VaultExplorer = () => {
     return (
         <div className="flex items-center gap-4">
             {!vault ? (
-                <Button onClick={chooseVault}>Choose Vault</Button>
+                <div className="flex flex-col gap-2">
+                    <Button className="w-full max-w-xs mx-auto" onClick={chooseVault}>
+                        Choose Vault
+                    </Button>
+
+                </div>
             ) : (
                 <div className="flex flex-col gap-2 w-full">
                     <div className="text-sm text-gray-700 flex items-center gap-2">
