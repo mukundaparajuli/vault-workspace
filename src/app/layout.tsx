@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SelectedFolderContextProvider } from "@/contexts/SelectedFolderContext";
 import { NavigationProvider } from "@/contexts/NavigationContext";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
           <SelectedFolderContextProvider>
             {children}
           </SelectedFolderContextProvider>
+          <Analytics />
         </NavigationProvider>
       </body>
     </html>
