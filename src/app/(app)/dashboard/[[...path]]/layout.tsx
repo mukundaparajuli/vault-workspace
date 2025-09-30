@@ -14,7 +14,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
                 </SidebarProvider>
             </div>
             <div className='max-w-screen w-full flex-1 flex-col'>
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-transparent h-[2rem] max-h-[2rem]">
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-transparent h-[3rem] max-h-[3rem]">
                     <EnhancedBreadCrumb />
                 </div>
                 {children}

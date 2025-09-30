@@ -115,7 +115,6 @@ const EnhancedBreadCrumb = () => {
     const canGoBack = history.currentIndex > 0
     const canGoForward = history.currentIndex < history.paths.length - 1
 
-    // Build breadcrumbs with actual names
     const currentPath = sanitizePath(path || [])
     const breadcrumbs = currentPath.map((segment, index) => ({
         slug: segment,
@@ -125,7 +124,6 @@ const EnhancedBreadCrumb = () => {
 
     return (
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
-            {/* Navigation Controls */}
             <div className="flex items-center gap-1">
                 <Button
                     variant="ghost"

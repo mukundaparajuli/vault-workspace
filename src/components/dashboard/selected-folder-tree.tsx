@@ -91,13 +91,13 @@ const SelectedFolderTree: React.FC = () => {
     if (path.length === 0) return null;
 
     return (
-        <div className="relative">
+        <div className="h-full">
             <Sidebar side="right" >
-                <SidebarContent className="p-2">
-                    <SidebarHeader className="px-2 py-2">
+                <SidebarContent className="p-2 overflow-hidden">
+                    <SidebarHeader className="py-2">
                         <p className="text-xs text-gray-500 mt-1">{folder ? folder.name : (error ? 'Error' : '')}</p>
                     </SidebarHeader>
-                    <SidebarMenu className="px-2">
+                    <SidebarMenu className="px-2 truncate">
                         {folder && folder.children && folder.children.length > 0 ? (
                             folder.children.map((child) => (
                                 <FileTree key={child.path.join('/')} node={child} />
