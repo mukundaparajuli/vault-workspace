@@ -7,7 +7,6 @@ import { VaultItem } from "@/lib/vaults/get-folder-structure";
 import useVault from "@/hooks/use-vault";
 import getFolderStructure from "@/lib/vaults/get-folder-structure";
 import { fromSlug, sanitizePath, validatePath } from "@/lib/core/utils";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu } from "@/components/ui/sidebar";
 
 const SelectedFolderTree: React.FC = () => {
     const [folder, setFolder] = useState<VaultItem | null>(null);
@@ -91,23 +90,21 @@ const SelectedFolderTree: React.FC = () => {
     if (path.length === 0) return null;
 
     return (
-        <div className="h-full">
-            <Sidebar side="right" >
-                <SidebarContent className="p-2 overflow-hidden">
-                    <SidebarHeader className="py-2">
-                        <p className="text-xs text-gray-500 mt-1">{folder ? folder.name : (error ? 'Error' : '')}</p>
-                    </SidebarHeader>
-                    <SidebarMenu className="px-2 truncate">
-                        {folder && folder.children && folder.children.length > 0 ? (
-                            folder.children.map((child) => (
-                                <FileTree key={child.path.join('/')} node={child} />
-                            ))
-                        ) : (
-                            <p className="text-gray-500 text-sm px-2">No items in this folder</p>
-                        )}
-                    </SidebarMenu>
-                </SidebarContent>
-            </Sidebar>
+        <div className="h-full flex flex-col">
+            <div className="px-3 py-3 border-b border-gray-100">
+                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {folder ? folder.name : (error ? 'Error' : 'Loading...')}
+                </h3>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+                {folder && folder.children && folder.children.length > 0 ? (
+                    folder.children.map((child) => (
+                        <FileTree key={child.path.join('/')} node={child} />
+                    ))
+                ) : (
+                    <p className="text-gray-400 text-xs px-2 py-4 text-center">No items</p>
+                )}
+            </div>
         </div>
     );
 };

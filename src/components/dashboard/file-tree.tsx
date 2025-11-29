@@ -60,31 +60,29 @@ const FileTree: React.FC<FileTreeProps> = ({ node }) => {
 
     return (
         <div>
-            <div className="flex w-full items-center py-1 px-2 rounded-md group">
-                <div
-                    className={`flex items-start space-x-2 flex-1 py-1 px-2 rounded-md ${isFolder ? "cursor-pointer hover:bg-gray-100" : "cursor-pointer hover:bg-gray-50"
-                        } ${isExactActive ? "bg-gray-200" : ""}`}
-                    onClick={navigateToNode}
-                    title={node.name}
-                >
-                    {isFolder ? (
-                        <FolderIcon size={16} className="text-gray-700" />
-                    ) : (
-                        <FileIcon size={14} className="text-gray-500" />
-                    )}
-                    <span className={`text-sm text-start ${isFolder ? "font-medium text-gray-800" : "text-gray-700"} ${isExactActive ? "font-semibold" : ""}`}>
-                        {node.name}
-                    </span>
-                </div>
+            <div
+                className={`flex items-center gap-2 py-1.5 px-2 rounded cursor-pointer transition-colors ${isExactActive
+                    ? "bg-gray-100 text-gray-700"
+                    : "hover:bg-gray-50 text-gray-600 hover:text-gray-700"
+                    }`}
+                onClick={navigateToNode}
+                title={node.name}
+            >
+                {isFolder ? (
+                    <FolderIcon size={14} className="text-gray-400 flex-shrink-0" />
+                ) : (
+                    <FileIcon size={14} className="text-gray-300 flex-shrink-0" />
+                )}
+                <span className={`text-sm truncate ${isExactActive ? "font-medium" : ""}`}>
+                    {node.name}
+                </span>
             </div>
 
-            {isFolder && (
-                <div className="ml-6 border-l border-gray-200 pl-3 mt-1">
-                    {loading && <div className="text-xs text-gray-500 py-1">Loading...</div>}
-                    {!loading && children && children.map((child) => (
+            {isFolder && children && children.length > 0 && (
+                <div className="ml-4 pl-2 border-l border-gray-100">
+                    {children.map((child) => (
                         <FileTree key={child.path.join("/")} node={child} />
                     ))}
-
                 </div>
             )}
         </div>

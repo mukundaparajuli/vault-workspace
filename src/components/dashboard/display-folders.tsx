@@ -24,17 +24,14 @@ const DisplayFolders = () => {
                 if (path && path.length > 0) {
                     let currentDir = vault
 
-                    // For each path segment, convert slug to actual folder name
                     for (let i = 0; i < path.length; i++) {
                         const slug = path[i]
 
-                        // Get the current directory contents to find the actual folder name
                         const currentContents = await getFolderStructure(vault, currentDir)
                         const folderNames = currentContents
                             .filter(item => item.kind === "folder")
                             .map(item => item.name)
 
-                        // Convert slug back to actual folder name
                         const actualFolderName = fromSlug(slug, folderNames)
 
                         if (!actualFolderName) {
@@ -66,20 +63,18 @@ const DisplayFolders = () => {
 
     if (isEmpty || folders?.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center mt-20 text-gray-500">
-                <FolderOpenIcon size={48} className="text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-gray-700">This folder is empty</h3>
-                <p className="text-sm text-gray-500">No files or folders found in this directory</p>
+            <div className="h-full flex flex-col items-center justify-center text-gray-500">
+                <FolderOpenIcon size={48} className="text-gray-300 mb-4" />
+                <h3 className="text-base font-medium mb-1 text-gray-600">This folder is empty</h3>
+                <p className="text-sm text-gray-400">No files or folders found</p>
             </div>
         )
     }
 
     if (!folders) {
         return (
-            <div className="text-gray-600 text-center mt-12">
-                <div className="animate-pulse">
-                    Loading folders...
-                </div>
+            <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="animate-pulse text-sm">Loading...</div>
             </div>
         )
     }
@@ -87,15 +82,15 @@ const DisplayFolders = () => {
 
 
     return (
-        <div className="w-full max-w-screen px-8 mt-9">
-            <div className="flex flex-col justify-start rounded-xl">
+        <div className="h-full p-4 pt-6">
+            <div className="bg-white border border-gray-100 rounded-lg overflow-hidden">
                 {folders.map((folder) => (
                     <FolderCard key={folder.name} {...folder} />
                 ))}
             </div>
 
-            <div className="mt-6 text-sm text-gray-500 border-t border-gray-200 pt-4">
-                {folders.length} item{folders.length !== 1 ? 's' : ''} found
+            <div className="mt-3 text-xs text-gray-400 px-1">
+                {folders.length} item{folders.length !== 1 ? 's' : ''}
             </div>
         </div>
     )

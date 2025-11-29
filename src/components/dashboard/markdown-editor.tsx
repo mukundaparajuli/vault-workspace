@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { FileText, Save, Eye, Edit } from "lucide-react";
+import { FileText, Save, Eye, Edit, Columns } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import CodeMirror from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 
@@ -13,12 +14,36 @@ interface MarkdownEditorProps {
     onClose: () => void;
 }
 
+const MarkdownImage = ({ src, alt, ...props }: any) => {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadImage = async () => {
+            if (src.startsWith('blob:') || src.startsWith('http') || src.startsWith('data:')) {
+                setImageUrl(src);
+                return;
+            }
+
+            setImageUrl(null);
+        };
+
+        loadImage();
+    }, [src]);
+
+    if (!imageUrl) {
+        return <span className="text-gray-400 italic text-sm">[Image: {alt || src}]</span>;
+    }
+
+    return <img src={imageUrl} alt={alt} className="max-w-full h-auto rounded-lg" {...props} />;
+};
+
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     fileHandle,
     fileName,
 }) => {
     const [content, setContent] = useState("");
     const [isEditing, setIsEditing] = useState(true);
+    const [isSplit, setIsSplit] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -53,46 +78,77 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     };
 
     return (
-        <div className="w-full h-[calc(100vh-2rem)]">
-            <div className="bg-white w-full h-full max-w-screen flex flex-col">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-3">
-                        <FileText className="w-5 h-5 text-gray-600" />
-                        <h2 className="text-lg font-semibold text-gray-900">{fileName}</h2>
+        <div className="w-full h-full">
+            <div className="bg-white w-full h-full flex flex-col">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 shrink-0">
+                    <div className="flex items-center gap-3">
+                        <FileText className="w-4 h-4 text-gray-400" />
+                        <h2 className="text-sm font-medium text-gray-700">{fileName}</h2>
                         {hasChanges && (
-                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                                Unsaved changes
-                            </span>
+                            <span className="text-xs text-gray-400">• Unsaved</span>
                         )}
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => setIsSplit((s) => !s)}
+                            className={`p-2 rounded hover:bg-gray-50 transition-colors ${isSplit ? 'bg-gray-100' : ''}`}
+                            title="Toggle split view"
+                        >
+                            <Columns className="w-4 h-4 text-gray-500" />
+                        </button>
+                        <button
                             onClick={() => setIsEditing(!isEditing)}
+                            className={`p-2 rounded hover:bg-gray-50 transition-colors ${!isEditing ? 'bg-gray-100' : ''}`}
+                            title={isEditing ? "Preview" : "Edit"}
                         >
                             {isEditing ? (
-                                <>
-                                    <Eye className="w-4 h-4 mr-2" /> Preview
-                                </>
+                                <Eye className="w-4 h-4 text-gray-500" />
                             ) : (
-                                <>
-                                    <Edit className="w-4 h-4 mr-2" /> Edit
-                                </>
+                                <Edit className="w-4 h-4 text-gray-500" />
                             )}
-                        </Button>
-                        <Button onClick={saveFile} disabled={isSaving || !hasChanges} size="sm">
-                            <Save className="w-4 h-4 mr-2" />
-                            {isSaving ? "Saving..." : "Save"}
-                        </Button>
+                        </button>
+                        <button
+                            onClick={saveFile}
+                            disabled={isSaving || !hasChanges}
+                            className="p-2 rounded hover:bg-gray-50 transition-colors disabled:opacity-30"
+                            title="Save"
+                        >
+                            <Save className="w-4 h-4 text-gray-500" />
+                        </button>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 flex overflow-hidden">
-                    {isEditing ? (
-                        <div className="flex-1 p-4">
+                <div className="flex-1 flex overflow-hidden min-h-0">
+                    {isSplit ? (
+                        <div className="flex-1 grid grid-cols-2 divide-x divide-gray-100 min-h-0">
+                            <div className="overflow-hidden bg-gray-50 min-h-0">
+                                <CodeMirror
+                                    value={content}
+                                    height="100%"
+                                    extensions={[markdown()]}
+                                    onChange={(value: string) => {
+                                        setContent(value);
+                                        setHasChanges(true);
+                                    }}
+                                    className="h-full text-sm"
+                                />
+                            </div>
+                            <div className="overflow-y-auto bg-white min-h-0">
+                                <article className="prose prose-sm max-w-none p-6 prose-headings:font-semibold prose-headings:text-gray-700 prose-p:text-gray-600 prose-a:text-gray-600 prose-a:underline prose-code:text-gray-600 prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:bg-transparent prose-pre:my-4 prose-blockquote:border-gray-200 prose-blockquote:text-gray-500 prose-hr:border-gray-100 prose-table:text-sm prose-th:bg-gray-50 prose-th:border prose-th:border-gray-200 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-gray-200 prose-td:px-3 prose-td:py-2 prose-img:rounded-lg prose-li:text-gray-600">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                        rehypePlugins={[rehypeHighlight]}
+                                        components={{
+                                            img: MarkdownImage
+                                        }}
+                                    >
+                                        {content}
+                                    </ReactMarkdown>
+                                </article>
+                            </div>
+                        </div>
+                    ) : isEditing ? (
+                        <div className="flex-1 bg-gray-50 min-h-0">
                             <CodeMirror
                                 value={content}
                                 height="100%"
@@ -101,21 +157,24 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                     setContent(value);
                                     setHasChanges(true);
                                 }}
+                                className="h-full text-sm"
                             />
                         </div>
                     ) : (
-                        <div className="flex-1 p-4 overflow-y-auto prose prose-sm max-w-none">
-                            <ReactMarkdown>{content}</ReactMarkdown>
+                        <div className="flex-1 overflow-y-auto bg-white min-h-0">
+                            <article className="prose prose-sm max-w-none p-6 prose-headings:font-semibold prose-headings:text-gray-700 prose-p:text-gray-600 prose-a:text-gray-600 prose-a:underline prose-code:text-gray-600 prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:bg-transparent prose-pre:my-4 prose-blockquote:border-gray-200 prose-blockquote:text-gray-500 prose-hr:border-gray-100 prose-table:text-sm prose-th:bg-gray-50 prose-th:border prose-th:border-gray-200 prose-th:px-3 prose-th:py-2 prose-td:border prose-td:border-gray-200 prose-td:px-3 prose-td:py-2 prose-img:rounded-lg prose-li:text-gray-600">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    rehypePlugins={[rehypeHighlight]}
+                                    components={{
+                                        img: MarkdownImage
+                                    }}
+                                >
+                                    {content}
+                                </ReactMarkdown>
+                            </article>
                         </div>
                     )}
-                </div>
-
-                {/* Footer */}
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
-                    <p className="text-xs text-gray-500">
-                        {isEditing ? "Edit mode" : "Preview mode"} • Use markdown syntax
-                        for formatting • Press Ctrl+S to save
-                    </p>
                 </div>
             </div>
         </div>

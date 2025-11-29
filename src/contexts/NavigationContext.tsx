@@ -43,7 +43,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         historyIndex: 0
     })
 
-    // Update state when URL changes
     useEffect(() => {
         const sanitizedPath = sanitizePath(path || [])
         const isValid = validatePath(sanitizedPath)

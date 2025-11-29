@@ -5,10 +5,8 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-// Enhanced slug utilities with better error handling
 export const toSlug = (name: string): string => {
     if (!name || typeof name !== 'string') {
-        console.warn('Invalid name provided to toSlug:', name)
         return ''
     }
     return name
@@ -28,7 +26,6 @@ export const fromSlug = (slug: string, items: string[]): string | undefined => {
     return items.find(item => toSlug(item) === slug.toLowerCase())
 }
 
-// Navigation utilities
 export interface NavigationPath {
     segments: string[]
     actualNames: string[]
@@ -38,9 +35,9 @@ export interface NavigationPath {
 
 export const validatePath = (pathSegments: string[]): boolean => {
     if (!Array.isArray(pathSegments)) return false
-    return pathSegments.every(segment => 
-        typeof segment === 'string' && 
-        segment.length > 0 && 
+    return pathSegments.every(segment =>
+        typeof segment === 'string' &&
+        segment.length > 0 &&
         segment.length <= 255 && // reasonable length limit
         !/[<>:"|?*\\]/.test(segment) // invalid file system characters
     )
@@ -54,21 +51,20 @@ export const sanitizePath = (pathSegments: string[]): string[] => {
         .slice(0, 50) // reasonable depth limit
 }
 
-export const buildBreadcrumbPath = (pathSegments: string[], actualNames: string[]): Array<{slug: string, name: string, path: string[]}> => {
-    const breadcrumbs: Array<{slug: string, name: string, path: string[]}> = []
-    
+export const buildBreadcrumbPath = (pathSegments: string[], actualNames: string[]): Array<{ slug: string, name: string, path: string[] }> => {
+    const breadcrumbs: Array<{ slug: string, name: string, path: string[] }> = []
+
     for (let i = 0; i < pathSegments.length; i++) {
         const slug = pathSegments[i]
         const name = actualNames[i] || slug // fallback to slug if actual name not available
         const path = pathSegments.slice(0, i + 1)
-        
+
         breadcrumbs.push({ slug, name, path })
     }
-    
+
     return breadcrumbs
 }
 
-// URL encoding/decoding for file system paths
 export const encodePathSegment = (segment: string): string => {
     return encodeURIComponent(toSlug(segment))
 }

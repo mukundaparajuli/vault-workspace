@@ -1,14 +1,8 @@
 "use client"
 
 import { useParams, useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Home, AlertCircle } from "lucide-react"
+import { ChevronLeft, ChevronRight, Home } from "lucide-react"
 import { useState, useEffect } from "react"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
 import { decodePathSegment, sanitizePath, validatePath, toSlug } from "@/lib/core/utils"
 
 interface NavigationHistory {
@@ -25,19 +19,11 @@ const EnhancedBreadCrumb = () => {
         paths: [[]],
         currentIndex: 0
     })
-    const [isNavigating, setIsNavigating] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [actualNames] = useState<string[]>([])
 
     useEffect(() => {
         const currentPath = sanitizePath(path || [])
-
-        if (!validatePath(currentPath)) {
-            setError('Invalid path format')
-            return
-        }
-
-        setError(null)
+        if (!validatePath(currentPath)) return
 
         setHistory(prev => {
             const lastPath = prev.paths[prev.currentIndex] || []
@@ -51,24 +37,13 @@ const EnhancedBreadCrumb = () => {
                     currentIndex: newPaths.length - 1
                 }
             }
-
             return prev
         })
-
-        setIsNavigating(false)
     }, [path])
 
     const navigateTo = (targetPath: string[]) => {
         const sanitizedPath = sanitizePath(targetPath)
-
-        if (!validatePath(sanitizedPath)) {
-            setError('Invalid path format')
-            return
-        }
-
-        setIsNavigating(true)
-        setError(null)
-
+        if (!validatePath(sanitizedPath)) return
         const slugPath = sanitizedPath.map(segment => encodeURIComponent(toSlug(segment)))
         router.push(`/dashboard/${slugPath.join('/')}`)
     }
@@ -77,12 +52,7 @@ const EnhancedBreadCrumb = () => {
         if (history.currentIndex > 0) {
             const targetIndex = history.currentIndex - 1
             const targetPath = history.paths[targetIndex]
-
-            setHistory(prev => ({
-                ...prev,
-                currentIndex: targetIndex
-            }))
-
+            setHistory(prev => ({ ...prev, currentIndex: targetIndex }))
             navigateTo(targetPath)
         }
     }
@@ -91,22 +61,9 @@ const EnhancedBreadCrumb = () => {
         if (history.currentIndex < history.paths.length - 1) {
             const targetIndex = history.currentIndex + 1
             const targetPath = history.paths[targetIndex]
-
-            setHistory(prev => ({
-                ...prev,
-                currentIndex: targetIndex
-            }))
-
+            setHistory(prev => ({ ...prev, currentIndex: targetIndex }))
             navigateTo(targetPath)
         }
-    }
-
-    const handleBreadcrumbClick = (targetPath: string[]) => {
-        navigateTo(targetPath)
-    }
-
-    const handleHomeClick = () => {
-        navigateTo([])
     }
 
     const canGoBack = history.currentIndex > 0
@@ -120,80 +77,47 @@ const EnhancedBreadCrumb = () => {
     }))
 
     return (
-        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
-            <div className="flex items-center gap-1">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={navigateBack}
-                    disabled={!canGoBack}
-                    className="h-8 w-8 p-0"
-                    title="Go back"
-                >
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={navigateForward}
-                    disabled={!canGoForward}
-                    className="h-8 w-8 p-0"
-                    title="Go forward"
-                >
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
+        <div className="flex items-center gap-1 text-sm">
+            <button
+                onClick={navigateBack}
+                disabled={!canGoBack}
+                className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Go back"
+            >
+                <ChevronLeft className="h-4 w-4 text-gray-600" />
+            </button>
+            <button
+                onClick={navigateForward}
+                disabled={!canGoForward}
+                className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Go forward"
+            >
+                <ChevronRight className="h-4 w-4 text-gray-600" />
+            </button>
 
-            {error && (
-                <div className="flex items-center gap-1 text-red-500" title={error}>
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-xs">Error</span>
-                </div>
-            )}
+            <div className="flex items-center ml-2">
+                <button
+                    onClick={() => navigateTo([])}
+                    className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                    <Home className="h-3.5 w-3.5" />
+                </button>
 
-            <Breadcrumb>
-                <div className="flex items-center whitespace-nowrap">
-                    {/* Home */}
-                    <BreadcrumbItem>
-                        <BreadcrumbLink
-                            onClick={handleHomeClick}
-                            className="flex items-center gap-1 text-gray-600 hover:text-gray-900 cursor-pointer transition-colors"
+                {breadcrumbs.map((breadcrumb, idx) => (
+                    <div key={breadcrumb.path.join('/')} className="flex items-center">
+                        <span className="mx-1.5 text-gray-300">/</span>
+                        <button
+                            onClick={() => navigateTo(breadcrumb.path)}
+                            className={`hover:text-gray-700 transition-colors ${idx === breadcrumbs.length - 1
+                                ? 'text-gray-700 font-medium'
+                                : 'text-gray-500'
+                                }`}
                         >
-                            <Home className="h-4 w-4" />
-                            <span className="font-medium">Home</span>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-
-                    {breadcrumbs.length > 0 && (
-                        <>
-                            {'>'}
-                            {breadcrumbs.map((breadcrumb, idx) => (
-                                <div key={`${breadcrumb.path.join('/')}-${idx}`} className="flex items-center">
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink
-                                            onClick={() => handleBreadcrumbClick(breadcrumb.path)}
-                                            className={`cursor-pointer transition-colors ${idx === breadcrumbs.length - 1
-                                                ? 'text-gray-900 font-semibold'
-                                                : 'text-gray-600 hover:text-gray-900 hover:underline'
-                                                }`}
-                                        >
-                                            {breadcrumb.name}
-                                        </BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    {idx < breadcrumbs.length - 1 && '›'}
-                                </div>
-                            ))}
-                        </>
-                    )}
-                </div>
-            </Breadcrumb>
-
-            {isNavigating && (
-                <div className="flex items-center gap-1 text-blue-500">
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500"></div>
-                    <span className="text-xs">Loading...</span>
-                </div>
-            )}
+                            {breadcrumb.name}
+                        </button>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }

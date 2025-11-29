@@ -67,7 +67,6 @@ const CreateModuleForm = () => {
     });
 
     const handleSubmit = async (values: ModuleSchemaType) => {
-        console.log(values);
         if (!vault) {
             await chooseVault();
             return;
@@ -76,7 +75,6 @@ const CreateModuleForm = () => {
         try {
             let currentDir = vault;
 
-            // Navigate to the current folder if we're in a subfolder
             if (path && path.length > 0) {
                 for (let i = 0; i < path.length; i++) {
                     const slug = path[i];
@@ -102,7 +100,6 @@ const CreateModuleForm = () => {
             form.reset();
             router.refresh();
         } catch (error) {
-            console.error("Failed to create module:", error);
         }
     };
 

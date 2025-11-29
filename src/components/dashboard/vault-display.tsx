@@ -12,7 +12,7 @@ import VaultExplorer from "../vault/vault-explorer"
 import { Maximize2, X } from "lucide-react"
 
 const VaultDisplay = () => {
-    const { vault } = useVault()
+    const { vault, isLoading } = useVault()
     const params = useParams()
     const path = params.path as string[] | undefined
 
@@ -88,72 +88,65 @@ const VaultDisplay = () => {
 
 
 
-    if (!vault) return (
-        <div className="mt-10 flex flex-col items-center justify-center gap-2">
-            <VaultExplorer />
-            <p className="text-sm text-gray-500 text-center">
-                If the button did not open a dialog, please make sure your browser supports <br />
-                the File System Access API (e.g., Chrome, Edge).
-            </p>
-
+    if (isLoading) return (
+        <div className="h-full flex items-center justify-center">
+            <div className="text-sm text-gray-400">Loading vault...</div>
         </div>
     )
-    if (!kind) return <div className="text-gray-500 text-center">Loading...</div>
+
+    if (!vault) return (
+        <div className="h-full flex flex-col items-center justify-center px-4">
+            <VaultExplorer />
+            <p className="mt-4 text-xs text-gray-400 text-center max-w-sm">
+                Select a folder to use as your vault. Make sure your browser supports the File System Access API.
+            </p>
+        </div>
+    )
+    if (!kind) return (
+        <div className="h-full flex items-center justify-center">
+            <div className="text-sm text-gray-400">Loading...</div>
+        </div>
+    )
     return (
-        <div className="relative w-full">
-            {kind === "folder" &&
-                <div className="absolute top-4 right-8 z-10">
+        <div className="relative w-full h-full overflow-hidden">
+            {kind === "folder" && (
+                <div className="absolute top-4 right-4 z-10">
                     <CreateModuleDialog />
                 </div>
-            }
-            {
-                kind === "folder" ? <DisplayFolders /> : (fileHandle &&
-
-                    <div>
+            )}
+            {kind === "folder" ? (
+                <DisplayFolders />
+            ) : (
+                fileHandle && (
+                    <div className="h-full">
                         {!isFullscreen && (
                             <button
                                 onClick={toggleFullscreen}
-                                className="absolute top-2 right-2 z-20 bg-gray-800 text-white p-2 rounded-full shadow hover:bg-gray-700"
+                                className="absolute top-2 right-2 z-20 p-2 rounded hover:bg-gray-100 transition-colors"
+                                title="Fullscreen (F)"
                             >
-                                <Maximize2 size={18} />
+                                <Maximize2 size={16} className="text-gray-500" />
                             </button>
                         )}
 
                         <div
-                            style={
-                                isFullscreen
-                                    ? {
-                                        position: "fixed",
-                                        top: 0,
-                                        left: 0,
-                                        width: "100vw",
-                                        height: "100vh",
-                                        backgroundColor: "white",
-                                        zIndex: 1000,
-                                    }
-                                    : {}
-                            }
+                            className={isFullscreen ? "fixed inset-0 bg-white z-50 flex flex-col" : "h-full"}
                         >
                             {isFullscreen && (
-                                <div className="absolute top-2 right-2 z-9999 group">
-                                    <button
-                                        onClick={toggleFullscreen}
-                                        className="opacity-100 group-hover:opacity-100 transition-opacity duration-200 bg-gray-600 text-white p-2 rounded-full shadow z-9999"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={toggleFullscreen}
+                                    className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-gray-100 transition-colors"
+                                >
+                                    <X size={16} className="text-gray-500" />
+                                </button>
                             )}
                             <FileViewer fileHandle={fileHandle} fileName={fileName} isFullScreen={isFullscreen} />
                         </div>
-
                     </div>
-
                 )
-            }
+            )}
         </div>
     )
-
 }
 
 export default VaultDisplay
