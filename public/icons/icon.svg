@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Vault Workspace">
+  <rect width="512" height="512" rx="112" fill="#18181b"/>
+  <path d="M160 120h120l72 72v200a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V152a32 32 0 0 1 32-32z" fill="#fafafa"/>
+  <path d="M280 120l72 72h-72z" fill="#d4d4d8"/>
+  <rect x="172" y="252" width="136" height="22" rx="11" fill="#71717a"/>
+  <rect x="172" y="304" width="168" height="22" rx="11" fill="#a1a1aa"/>
+  <rect x="172" y="356" width="104" height="22" rx="11" fill="#a1a1aa"/>
+</svg>
