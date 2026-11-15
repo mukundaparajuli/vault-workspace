@@ -1,5 +1,6 @@
 export type FileKind =
   | "markdown"
+  | "excalidraw"
   | "image"
   | "video"
   | "audio"
@@ -10,7 +11,7 @@ export type FileKind =
   | "archive"
   | "other"
 
-const EXTENSIONS: Record<Exclude<FileKind, "other">, string[]> = {
+const EXTENSIONS: Record<Exclude<FileKind, "other" | "excalidraw">, string[]> = {
   markdown: ["md", "markdown", "mdx"],
   image: ["png", "jpg", "jpeg", "gif", "webp", "avif", "svg", "bmp", "ico"],
   video: ["mp4", "webm", "mov", "m4v", "ogv"],
@@ -30,7 +31,12 @@ export const getExtension = (name: string): string => {
   return index > 0 ? name.slice(index + 1).toLowerCase() : ""
 }
 
+/** `.excalidraw`, `.excalidraw.json` and Obsidian's `.excalidraw.md` drawings. */
+export const isExcalidrawName = (name: string) => /\.excalidraw(\.(md|json))?$/i.test(name)
+
 export const getFileKind = (name: string): FileKind => {
+  if (isExcalidrawName(name)) return "excalidraw"
+
   const extension = getExtension(name)
 
   for (const [kind, extensions] of Object.entries(EXTENSIONS)) {

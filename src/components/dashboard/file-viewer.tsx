@@ -6,6 +6,7 @@ import { formatBytes, getFileKind, isTextKind } from "@/lib/core/file-kind"
 import { cn } from "@/lib/core/utils"
 import { Download, ExternalLink, FileQuestion, Loader2, ZoomIn, ZoomOut } from "lucide-react"
 import { useEffect, useMemo, useState, type ReactNode } from "react"
+import DrawingViewer from "./excalidraw/drawing-viewer"
 import { FileTile, getKindMeta } from "./file-icon"
 import TextEditor, { downloadBlob } from "./text-editor"
 
@@ -33,6 +34,10 @@ const FileViewer = ({ fileHandle, names, header }: FileViewerProps) => {
   useEffect(() => {
     fileHandle.getFile().then((file) => setSize(file.size)).catch(() => setSize(null))
   }, [fileHandle])
+
+  if (kind === "excalidraw") {
+    return <DrawingViewer fileHandle={fileHandle} fileName={fileName} dirNames={dirNames} header={header} />
+  }
 
   if (isTextKind(kind)) {
     if (size === null) {

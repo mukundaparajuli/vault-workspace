@@ -16,6 +16,7 @@ import { Shortcut } from "@/components/ui/kbd"
 import { Skeleton } from "@/components/ui/skeleton"
 import useVault from "@/hooks/use-vault"
 import { moduleType, openCommandPalette, openCreateDialog } from "@/lib/core/constants"
+import { parseExcalidraw, type ExcalidrawScene } from "@/lib/core/excalidraw"
 import { formatBytes, formatRelativeTime, getFileKind } from "@/lib/core/file-kind"
 import { useRecent } from "@/lib/core/recent"
 import { cn, toHref, toSlug } from "@/lib/core/utils"
@@ -37,6 +38,7 @@ import {
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react"
 import { toast } from "sonner"
+import ExcalidrawSvg from "./excalidraw/excalidraw-svg"
 import { FileIcon, FileTile, getKindMeta } from "./file-icon"
 import NodeActions from "./node-actions"
 import WorkspaceHeader from "./workspace-header"
@@ -47,6 +49,7 @@ type Entry = VaultItem & {
   childCount?: number
   thumbnail?: string
   excerpt?: string
+  drawing?: ExcalidrawScene
 }
 
 type ViewMode = "grid" | "list"
@@ -80,6 +83,8 @@ const stripMarkdown = (text: string) =>
     .replace(/^---[\s\S]*?---/, "")
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/!\[[^\]]*]\([^)]*\)/g, "")
+    .replace(/!\[\[[^\]]*\]\]/g, "") // Obsidian embeds
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target: string, alias?: string) => alias ?? target)
     .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
     .replace(/^\s*[-*+]\s+\[[ xX]\]/gm, " ")
     .replace(/^#{1,6}\s+.*$/m, "") // drop the first heading, it usually repeats the title
@@ -150,6 +155,8 @@ const DisplayFolders = ({
                 if (kind === "image" && file.size < MAX_THUMB_BYTES) {
                   entry.thumbnail = URL.createObjectURL(file)
                   createdUrls.push(entry.thumbnail)
+                } else if (kind === "excalidraw" && file.size < 2 * 1024 * 1024) {
+                  entry.drawing = parseExcalidraw(await file.text()) ?? undefined
                 } else if (kind === "markdown" && file.size < 256 * 1024) {
                   entry.excerpt = stripMarkdown(await file.text())
                 }
@@ -480,7 +487,13 @@ const GridCard = ({ entry, index, onOpen }: { entry: Entry; index: number; onOpe
         className="group/card relative flex animate-fade-up flex-col overflow-hidden rounded-xl border bg-card text-left shadow-xs outline-none transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-foreground/15 hover:shadow-md focus-visible:ring-[3px] focus-visible:ring-ring"
       >
         <div className="relative flex h-28 items-center justify-center overflow-hidden border-b bg-muted/60">
-          {entry.thumbnail ? (
+          {entry.drawing ? (
+            <ExcalidrawSvg
+              scene={entry.drawing}
+              padding={8}
+              className="size-full p-2.5 transition-transform duration-300 group-hover/card:scale-[1.03]"
+            />
+          ) : entry.thumbnail ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={entry.thumbnail}

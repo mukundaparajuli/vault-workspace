@@ -12,11 +12,13 @@ import {
   Folder,
   FolderOpen,
   NotebookText,
+  PenTool,
   type LucideIcon,
 } from "lucide-react"
 
 const KIND_META: Record<FileKind, { icon: LucideIcon; tint: string; label: string }> = {
   markdown: { icon: NotebookText, tint: "text-brand", label: "Note" },
+  excalidraw: { icon: PenTool, tint: "text-violet-600 dark:text-violet-400", label: "Drawing" },
   image: { icon: FileImage, tint: "text-emerald-600 dark:text-emerald-400", label: "Image" },
   video: { icon: FileVideo, tint: "text-rose-600 dark:text-rose-400", label: "Video" },
   audio: { icon: FileAudio, tint: "text-fuchsia-600 dark:text-fuchsia-400", label: "Audio" },
