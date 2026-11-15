@@ -26,6 +26,21 @@ export const fromSlug = (slug: string, items: string[]): string | undefined => {
     return items.find(item => toSlug(item) === slug.toLowerCase())
 }
 
+/**
+ * Build a dashboard href from a list of (already slugged) path segments.
+ * Each segment is URL-encoded so spaces and reserved characters survive routing.
+ */
+export const toHref = (pathSegments: string[]): string => {
+    if (!Array.isArray(pathSegments) || pathSegments.length === 0) {
+        return "/dashboard"
+    }
+
+    return `/dashboard/${pathSegments
+        .filter(segment => typeof segment === "string" && segment.length > 0)
+        .map(segment => encodeURIComponent(segment))
+        .join("/")}`
+}
+
 export interface NavigationPath {
     segments: string[]
     actualNames: string[]
