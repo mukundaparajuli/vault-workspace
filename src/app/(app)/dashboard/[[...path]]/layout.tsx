@@ -1,12 +1,12 @@
-import LeftSidebar from '@/components/dashboard/left-sidebar'
-import React from 'react'
+import LeftSidebar from "@/components/dashboard/left-sidebar"
+import { cookies } from "next/headers"
+import React from "react"
 
-const layout = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <LeftSidebar>
-            {children}
-        </LeftSidebar>
-    )
+const Layout = async ({ children }: { children: React.ReactNode }) => {
+    const cookieStore = await cookies()
+    const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false"
+
+    return <LeftSidebar defaultOpen={defaultOpen}>{children}</LeftSidebar>
 }
 
-export default layout
+export default Layout

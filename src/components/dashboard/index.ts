@@ -1,8 +1,6 @@
 // Dashboard Components
 export * from './app-sidebar';
-export * from './create-module-dialog';
-export * from './create-module-form';
-export * from './selected-folder-tree';
-export * from './display-folders';
-export * from './file-tree';
-export * from './folder-card';
+export { default as CreateModuleDialog } from './create-module-dialog';
+export { default as DisplayFolders } from './display-folders';
+export { default as FileViewer } from './file-viewer';
+export { default as VaultDisplay } from './vault-display';

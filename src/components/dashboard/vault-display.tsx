@@ -1,152 +1,148 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
 import useVault from "@/hooks/use-vault"
-import getFolderStructure from "@/lib/vaults/get-folder-structure"
-import { fromSlug } from "@/lib/core/utils"
+import { pushRecent } from "@/lib/core/recent"
+import { decodePathSegment, toSlug } from "@/lib/core/utils"
+import { resolvePath } from "@/lib/vaults/get-folder-structure"
+import { FileQuestion } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
+import { useEffect, useMemo, useState } from "react"
 import DisplayFolders from "./display-folders"
 import FileViewer from "./file-viewer"
-import CreateModuleDialog from "./create-module-dialog"
-import VaultExplorer from "../vault/vault-explorer"
-import { Maximize2, X } from "lucide-react"
+import WelcomeScreen from "./welcome-screen"
+import WorkspaceHeader from "./workspace-header"
+
+type ViewState =
+  | { status: "loading" }
+  | { status: "missing" }
+  | {
+      status: "ready"
+      kind: "folder" | "file"
+      names: string[]
+      handle: FileSystemFileHandle | FileSystemDirectoryHandle
+    }
 
 const VaultDisplay = () => {
-    const { vault, isLoading } = useVault()
-    const params = useParams()
-    const path = params.path as string[] | undefined
+  const { vault, vaultName, status, structureVersion } = useVault()
+  const params = useParams()
+  const router = useRouter()
+  const rawPath = params.path as string[] | undefined
+  // Stable key so resolving doesn't rerun on every render.
+  const pathKey = (rawPath ?? []).join("/")
+  const path = useMemo(() => (pathKey ? pathKey.split("/") : []), [pathKey])
 
-    const [kind, setKind] = useState<"folder" | "file" | null>(null)
-    const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null)
-    const [fileName, setFileName] = useState("")
-    const [isFullscreen, setIsFullscreen] = useState(false)
+  const [view, setView] = useState<ViewState>({ status: "loading" })
 
+  useEffect(() => {
+    let isMounted = true
 
-    const toggleFullscreen = useCallback(() => {
-        setIsFullscreen((prev) => !prev)
-    }, [])
+    const resolveView = async () => {
+      if (!vault) return
 
-    const exitFullscreen = useCallback(() => {
-        setIsFullscreen(false)
-    }, [])
+      try {
+        const node = await resolvePath(vault, path.map(decodePathSegment))
+        if (!isMounted) return
 
-    useEffect(() => {
-        const handleKey = (e: KeyboardEvent) => {
-            if (e.key === "f" || e.key === "F") {
-                toggleFullscreen()
-            }
-            if (e.key === "Escape") {
-                exitFullscreen()
-            }
-        }
-        window.addEventListener("keydown", handleKey)
-        return () => window.removeEventListener("keydown", handleKey)
-    }, [toggleFullscreen, exitFullscreen])
-
-    useEffect(() => {
-        const resolvePath = async () => {
-            if (!vault) return
-            if (!path || path.length === 0) {
-                setKind("folder")
-                return
-            }
-
-            let currentDir = vault
-            for (let i = 0; i < path.length - 1; i++) {
-                const slug = path[i]
-                const contents = await getFolderStructure(vault, currentDir)
-                const folderNames = contents.filter(i => i.kind === "folder").map(i => i.name)
-                const actualFolder = fromSlug(slug, folderNames)
-                if (!actualFolder) return
-                currentDir = await currentDir.getDirectoryHandle(actualFolder)
-            }
-
-            const lastSlug = path[path.length - 1]
-            const contents = await getFolderStructure(vault, currentDir)
-
-            const folderNames = contents.filter(i => i.kind === "folder").map(i => i.name)
-            const actualFolder = fromSlug(lastSlug, folderNames)
-            if (actualFolder) {
-                setKind("folder")
-                return
-            }
-
-            const fileNames = contents.filter(i => i.kind === "file").map(i => i.name)
-            const actualFile = fromSlug(lastSlug, fileNames)
-            if (actualFile) {
-                const handle = await currentDir.getFileHandle(actualFile)
-                setKind("file")
-                setFileHandle(handle)
-                setFileName(actualFile)
-                return
-            }
+        if (!node) {
+          setView({ status: "missing" })
+          return
         }
 
-        resolvePath()
-    }, [vault, path])
+        setView({ status: "ready", kind: node.kind, names: node.path, handle: node.handle })
 
+        if (node.kind === "file") {
+          pushRecent({ vault: vault.name, slugPath: node.path.map(toSlug), names: node.path })
+        }
+      } catch (error) {
+        console.error("Failed to resolve path:", error)
+        if (isMounted) setView({ status: "missing" })
+      }
+    }
 
+    void resolveView()
 
+    return () => {
+      isMounted = false
+    }
+  }, [vault, path, structureVersion])
 
-    if (isLoading) return (
-        <div className="h-full flex items-center justify-center">
-            <div className="text-sm text-gray-400">Loading vault...</div>
-        </div>
-    )
+  if (status === "loading" || (status === "ready" && view.status === "loading")) {
+    return <WorkspaceSkeleton />
+  }
 
-    if (!vault) return (
-        <div className="h-full flex flex-col items-center justify-center px-4">
-            <VaultExplorer />
-            <p className="mt-4 text-xs text-gray-400 text-center max-w-sm">
-                Select a folder to use as your vault. Make sure your browser supports the File System Access API.
-            </p>
-        </div>
-    )
-    if (!kind) return (
-        <div className="h-full flex items-center justify-center">
-            <div className="text-sm text-gray-400">Loading...</div>
-        </div>
-    )
+  if (status !== "ready" || !vault) {
+    return <WelcomeScreen />
+  }
+
+  if (view.status === "missing") {
     return (
-        <div className="relative w-full h-full overflow-hidden">
-            {kind === "folder" && (
-                <div className="absolute top-4 right-4 z-10">
-                    <CreateModuleDialog />
-                </div>
-            )}
-            {kind === "folder" ? (
-                <DisplayFolders />
-            ) : (
-                fileHandle && (
-                    <div className="h-full">
-                        {!isFullscreen && (
-                            <button
-                                onClick={toggleFullscreen}
-                                className="absolute top-2 right-2 z-20 p-2 rounded hover:bg-gray-100 transition-colors"
-                                title="Fullscreen (F)"
-                            >
-                                <Maximize2 size={16} className="text-gray-500" />
-                            </button>
-                        )}
-
-                        <div
-                            className={isFullscreen ? "fixed inset-0 bg-white z-50 flex flex-col" : "h-full"}
-                        >
-                            {isFullscreen && (
-                                <button
-                                    onClick={toggleFullscreen}
-                                    className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-gray-100 transition-colors"
-                                >
-                                    <X size={16} className="text-gray-500" />
-                                </button>
-                            )}
-                            <FileViewer fileHandle={fileHandle} fileName={fileName} isFullScreen={isFullscreen} />
-                        </div>
-                    </div>
-                )
-            )}
+      <div className="flex h-full flex-col">
+        <div className="flex h-12 items-center border-b px-3">
+          <SidebarTrigger className="text-muted-foreground" />
         </div>
+        <div className="flex flex-1 items-center justify-center bg-dots p-6">
+          <div className="max-w-sm animate-fade-up text-center">
+            <div className="mx-auto flex size-11 items-center justify-center rounded-xl border bg-card shadow-sm">
+              <FileQuestion className="size-5 text-muted-foreground" />
+            </div>
+            <h2 className="mt-4 text-[15px] font-semibold">Nothing here</h2>
+            <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">
+              This item was moved, renamed, or deleted on disk.
+            </p>
+            <Button className="mt-5" variant="outline" onClick={() => router.push("/dashboard")}>
+              Back to {vaultName}
+            </Button>
+          </div>
+        </div>
+      </div>
     )
+  }
+
+  if (view.status !== "ready") return null
+
+  if (view.kind === "folder") {
+    return (
+      <DisplayFolders
+        key={view.names.join("/")}
+        dirHandle={view.handle as FileSystemDirectoryHandle}
+        names={view.names}
+      />
+    )
+  }
+
+  return (
+    <FileViewer
+      key={view.names.join("/")}
+      fileHandle={view.handle as FileSystemFileHandle}
+      names={view.names}
+      header={(actions) => <WorkspaceHeader names={view.names} kind="file" actions={actions} />}
+    />
+  )
 }
+
+const WorkspaceSkeleton = () => (
+  <div className="flex h-full flex-col">
+    <div className="flex h-12 items-center gap-3 border-b px-3">
+      <SidebarTrigger className="text-muted-foreground" />
+      <Skeleton className="h-4 w-48 rounded" />
+    </div>
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-6 py-10">
+      <Skeleton className="h-7 w-56 rounded-md" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton key={index} className="h-24 rounded-xl" />
+        ))}
+      </div>
+      <div className="space-y-2">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-10 rounded-lg" />
+        ))}
+      </div>
+    </div>
+  </div>
+)
 
 export default VaultDisplay

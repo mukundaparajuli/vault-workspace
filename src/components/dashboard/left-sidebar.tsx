@@ -1,23 +1,27 @@
 "use client"
 
-import React from 'react'
-import { SidebarProvider, SidebarTrigger } from '../ui'
-import { AppSidebar } from './app-sidebar'
+import CommandPalette from "@/components/ui/command-palette"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import React from "react"
+import { AppSidebar } from "./app-sidebar"
+import CreateModuleDialog from "./create-module-dialog"
 
-const LeftSidebar = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <div className='w-screen h-screen bg-white flex overflow-hidden'>
-            <SidebarProvider defaultOpen={true}>
-                <AppSidebar />
-                <div className="fixed top-3 left-3 z-50">
-                    <SidebarTrigger className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-1.5" />
-                </div>
-                <main className="flex-1 h-full overflow-auto">
-                    {children}
-                </main>
-            </SidebarProvider>
-        </div>
-    )
-}
+/** App shell: inset sidebar + elevated content pane, plus global dialogs. */
+const LeftSidebar = ({
+  children,
+  defaultOpen = true,
+}: {
+  children: React.ReactNode
+  defaultOpen?: boolean
+}) => (
+  <SidebarProvider defaultOpen={defaultOpen} className="h-svh overflow-hidden">
+    <AppSidebar />
+    <SidebarInset className="min-w-0 overflow-hidden md:peer-data-[variant=inset]:border md:peer-data-[variant=inset]:shadow-md md:peer-data-[variant=inset]:h-[calc(100svh-1rem)]">
+      {children}
+    </SidebarInset>
+    <CommandPalette />
+    <CreateModuleDialog />
+  </SidebarProvider>
+)
 
 export default LeftSidebar
