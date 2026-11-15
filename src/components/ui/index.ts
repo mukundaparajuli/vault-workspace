@@ -1,9 +1,13 @@
 // UI Components
 export * from './breadcrumb';
 export * from './button';
+export * from './command';
+export * from './context-menu';
 export * from './dialog';
+export * from './dropdown-menu';
 export * from './form';
 export * from './input';
+export * from './kbd';
 export * from './label';
 export * from './popover';
 export * from './select';
