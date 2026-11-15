@@ -1,0 +1,4 @@
+# sharp ships prebuilt binaries via the @img/sharp-* packages, so its
+# install script is not needed and is intentionally skipped.
+allowBuilds:
+  sharp: false
