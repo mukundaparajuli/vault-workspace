@@ -26,3 +26,25 @@ export const namesForSlugPath = (tree: VaultItem[] | null, slugPath: string[]): 
 
     return names
 }
+
+/**
+ * Resolve an Obsidian-style `[[target]]` by name anywhere in the vault.
+ * Accepts bare names (`Roadmap`), names with extension, or partial paths
+ * (`Projects/Roadmap`). Shortest matching path wins, like Obsidian.
+ */
+export const findByName = (tree: VaultItem[] | null, target: string): VaultItem | null => {
+    if (!tree) return null
+
+    const wanted = target.split("#")[0].trim().replace(/^\/+/, "").toLowerCase()
+    if (!wanted) return null
+
+    const candidates = [wanted, `${wanted}.md`, `${wanted}.excalidraw.md`, `${wanted}.excalidraw`]
+    const matches = flattenTree(tree).filter((item) => {
+        if (item.kind !== "file") return false
+        const path = item.path.join("/").toLowerCase()
+        return candidates.some((candidate) => path === candidate || path.endsWith(`/${candidate}`))
+    })
+
+    matches.sort((a, b) => a.path.length - b.path.length)
+    return matches[0] ?? null
+}
