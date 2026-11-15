@@ -1,5 +1,5 @@
 /* Vault Workspace service worker - app shell caching for full offline use. */
-const VERSION = "v2"
+const VERSION = "v3"
 const PRECACHE = `vault-precache-${VERSION}`
 const RUNTIME = `vault-runtime-${VERSION}`
 const OFFLINE_URL = "/offline"
@@ -145,7 +145,9 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url)
 
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
+  if (url.pathname.startsWith("/_next/static/") ||
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/excalidraw-assets/")) {
     event.respondWith(cacheFirst(request))
     return
   }
