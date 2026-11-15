@@ -23,6 +23,8 @@ interface VaultContextValue {
   /** A remembered vault whose permission must be re-granted with a user gesture. */
   pendingVaultName: string | null
   isSupported: boolean
+  /** Brave ships the File System Access API disabled behind a flag. */
+  isBrave: boolean
   /** Full recursive tree of the vault, shared by the sidebar and command palette. */
   tree: VaultItem[] | null
   isTreeLoading: boolean
@@ -54,12 +56,16 @@ export const VaultProvider = ({ children }: { children: React.ReactNode }) => {
   const [pendingHandle, setPendingHandle] = useState<FileSystemDirectoryHandle | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSupported, setIsSupported] = useState(true)
+  const [isBrave, setIsBrave] = useState(false)
   const [structureVersion, setStructureVersion] = useState(0)
   const [tree, setTree] = useState<VaultItem[] | null>(null)
   const [isTreeLoading, setIsTreeLoading] = useState(false)
 
   useEffect(() => {
     setIsSupported(typeof window !== "undefined" && "showDirectoryPicker" in window)
+
+    const brave = (navigator as Navigator & { brave?: { isBrave?: () => Promise<boolean> } }).brave
+    brave?.isBrave?.().then(setIsBrave).catch(() => setIsBrave(false))
 
     const loadSavedVault = async () => {
       try {
@@ -198,6 +204,7 @@ export const VaultProvider = ({ children }: { children: React.ReactNode }) => {
       status,
       pendingVaultName: pendingHandle?.name ?? null,
       isSupported,
+      isBrave,
       tree,
       isTreeLoading,
       structureVersion,
@@ -212,6 +219,7 @@ export const VaultProvider = ({ children }: { children: React.ReactNode }) => {
       status,
       pendingHandle,
       isSupported,
+      isBrave,
       tree,
       isTreeLoading,
       structureVersion,
